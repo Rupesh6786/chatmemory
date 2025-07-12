@@ -1,13 +1,18 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can only read and create chat documents that belong to them.
-    // Updates and deletes are disallowed for now to prevent data tampering.
     match /chats/{chatId} {
-      allow read, create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if false;
+      // Allow user to read/write/delete their own chat document.
+      allow get, update, delete, write: if request.auth != null && request.auth.uid == resource.data.userId;
+
+      // Allow user to create a chat document for themselves.
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+    // Allow a user to query for the list of their own chats.
+    // This rule is needed for the getChatsForUser function.
+    match /chats/{document=**} {
+        allow list: if request.auth != null && request.query.resource.data.userId == request.auth.uid;
     }
   }
 }
