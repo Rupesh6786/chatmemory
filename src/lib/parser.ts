@@ -11,23 +11,28 @@ const MEDIA_OMITTED_MESSAGE = '<Media omitted>';
 function parseDate(dateString: string): Date {
   // Handles DD/MM/YY, HH:MM am/pm
   const parts = dateString.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4}), (\d{1,2}):(\d{2})\s?([ap]m)/i);
-  if (!parts) return new Date();
+  if (parts) {
+      const [_, day, month, year, hours, minutes, ampm] = parts;
+      let numericHours = parseInt(hours, 10);
+      
+      if (ampm.toLowerCase() === 'pm' && numericHours < 12) {
+        numericHours += 12;
+      }
+      if (ampm.toLowerCase() === 'am' && numericHours === 12) {
+        numericHours = 0;
+      }
 
-  const [_, day, month, year, hours, minutes, ampm] = parts;
-  let numericHours = parseInt(hours, 10);
-  
-  if (ampm.toLowerCase() === 'pm' && numericHours < 12) {
-    numericHours += 12;
+      const fullYear = parseInt(year, 10) < 100 ? 2000 + parseInt(year, 10) : parseInt(year, 10);
+      
+      return new Date(fullYear, parseInt(month, 10) - 1, parseInt(day, 10), numericHours, parseInt(minutes, 10));
   }
-  if (ampm.toLowerCase() === 'am' && numericHours === 12) {
-    numericHours = 0;
-  }
-
-  // year can be 'YY' or 'YYYY', handle both
-  const fullYear = parseInt(year, 10) < 100 ? 2000 + parseInt(year, 10) : parseInt(year, 10);
   
-  // new Date(year, monthIndex, day, hours, minutes)
-  return new Date(fullYear, parseInt(month, 10) - 1, parseInt(day, 10), numericHours, parseInt(minutes, 10));
+  // Fallback for other formats if needed, or default to now
+  try {
+      return new Date(dateString);
+  } catch(e) {
+      return new Date();
+  }
 }
 
 
@@ -44,9 +49,9 @@ export const parseWhatsAppChat = (fileContent: string): { messages: Message[], s
     if (match) {
       // Groups: 1:datetime, 2:sender, 3:text
       const [_, datetime, senderName, text] = match;
-      const messageText = text.trim();
+      const messageText = text ? text.trim() : "";
       
-      if (messageText.includes(MEDIA_OMITTED_MESSAGE)) {
+      if (!messageText || messageText.includes(MEDIA_OMITTED_MESSAGE)) {
         currentMessage = null; // Ignore this message and don't create a bubble for it
         continue;
       }
