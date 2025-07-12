@@ -1,6 +1,7 @@
+// src/app/page.tsx
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { parseWhatsAppChat } from '@/lib/parser';
 import { analyzeSentiment } from '@/ai/flows/analyze-sentiment';
 import type { Message, Sender } from '@/lib/types';
@@ -8,8 +9,11 @@ import FileUploader from '@/components/chat-memory/file-uploader';
 import ControlPanel from '@/components/chat-memory/control-panel';
 import ChatView from '@/components/chat-memory/chat-view';
 import { useToast } from '@/hooks/use-toast';
-import { MessageSquareText, Loader2 } from 'lucide-react';
+import { MessageSquareText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { PanelLeft } from 'lucide-react';
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -22,6 +26,7 @@ export default function Home() {
   const [sentimentFilter, setSentimentFilter] = useState<string>('all');
   
   const [fileUploaded, setFileUploaded] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const { toast } = useToast();
 
@@ -90,9 +95,14 @@ export default function Home() {
     setSentimentFilter('all');
   };
 
+  const onFilterSelect = (filter: string) => {
+    setSentimentFilter(filter);
+    setIsSheetOpen(false); // Close sheet after selection
+  }
+
   if (!fileUploaded) {
      return (
-        <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-background">
+        <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-8 bg-background">
             <Card className="w-full max-w-2xl shadow-2xl">
                 <CardHeader>
                     <div className='text-center'>
@@ -112,22 +122,47 @@ export default function Home() {
 
   return (
     <div className="flex h-screen w-screen bg-background text-foreground overflow-hidden">
-        <div className="relative z-10 flex w-full h-full">
-            <ControlPanel
-                onSearch={setSearchQuery}
-                onFilter={setSentimentFilter}
-                activeFilter={sentimentFilter}
-                onReset={resetToUploader}
-                otherParticipantName={otherParticipant?.name}
-            />
-            <ChatView
-                messages={filteredMessages}
-                senders={senders}
-                isAnalyzing={isAnalyzing}
-                searchQuery={searchQuery}
-                otherParticipant={otherParticipant}
-            />
-        </div>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <div className="relative z-10 flex w-full h-full">
+              {/* Desktop Control Panel */}
+              <div className="hidden md:flex">
+                <ControlPanel
+                    onSearch={setSearchQuery}
+                    onFilter={onFilterSelect}
+                    activeFilter={sentimentFilter}
+                    onReset={resetToUploader}
+                    otherParticipantName={otherParticipant?.name}
+                />
+              </div>
+
+              {/* Mobile Control Panel Trigger (in ChatView header) */}
+              <ChatView
+                  messages={filteredMessages}
+                  senders={senders}
+                  isAnalyzing={isAnalyzing}
+                  searchQuery={searchQuery}
+                  otherParticipant={otherParticipant}
+              >
+                 <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="md:hidden">
+                      <PanelLeft className="h-5 w-5" />
+                      <span className="sr-only">Open menu</span>
+                    </Button>
+                  </SheetTrigger>
+              </ChatView>
+          </div>
+          <SheetContent side="left" className="p-0 w-[300px] flex flex-col">
+             {/* Mobile Control Panel Content */}
+              <ControlPanel
+                  onSearch={setSearchQuery}
+                  onFilter={onFilterSelect}
+                  activeFilter={sentimentFilter}
+                  onReset={resetToUploader}
+                  otherParticipantName={otherParticipant?.name}
+                  isSheet={true}
+              />
+          </SheetContent>
+        </Sheet>
     </div>
   );
 }
