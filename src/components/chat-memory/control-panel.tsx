@@ -3,20 +3,22 @@
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Smile, Frown, Angry, MessageSquareText, ArrowLeft, X } from 'lucide-react';
+import { Search, Smile, Frown, Angry, MessageSquareText, ArrowLeft, X, BarChartHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SheetClose, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Separator } from '@/components/ui/separator';
 
 interface ControlPanelProps {
   onSearch: (query: string) => void;
   onFilter: (sentiment: string) => void;
   activeFilter: string;
   onReset: () => void;
+  onAnalyze: () => void;
   otherParticipantName?: string;
   isSheet?: boolean;
 }
 
-export default function ControlPanel({ onSearch, onFilter, activeFilter, onReset, otherParticipantName, isSheet }: ControlPanelProps) {
+export default function ControlPanel({ onSearch, onFilter, activeFilter, onReset, onAnalyze, otherParticipantName, isSheet }: ControlPanelProps) {
   const sentimentFilters = [
     { name: 'Happy', sentiment: 'happy', icon: Smile, color: 'text-green-500' },
     { name: 'Sad', sentiment: 'sad', icon: Frown, color: 'text-blue-500' },
@@ -58,6 +60,16 @@ export default function ControlPanel({ onSearch, onFilter, activeFilter, onReset
             );
           })}
         </div>
+      </div>
+
+      <Separator className="my-4" />
+
+      <div className="px-4">
+        <h3 className="text-sm font-semibold text-muted-foreground mb-2 px-1">Analysis</h3>
+        <Button variant="outline" className="w-full justify-start" onClick={onAnalyze}>
+          <BarChartHorizontal className="mr-2 h-4 w-4" />
+          Analyze Chat
+        </Button>
       </div>
       
       <div className="mt-auto p-4 border-t border-border/50">

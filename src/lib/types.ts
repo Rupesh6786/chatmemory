@@ -13,3 +13,8 @@ export interface Sender {
   name: string;
   isUser: boolean;
 }
+
+export interface StoredChatData {
+  messages: Message[];
+  senders: [string, Sender][];
+}

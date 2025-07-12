@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { parseWhatsAppChat } from '@/lib/parser';
 import { analyzeSentiment } from '@/ai/flows/analyze-sentiment';
 import type { Message, Sender } from '@/lib/types';
@@ -29,6 +30,7 @@ export default function Home() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleFileUpload = async (file: File) => {
     setIsLoading(true);
@@ -69,9 +71,28 @@ export default function Home() {
     }
   };
 
+  const handleAnalyzeChat = () => {
+    try {
+        const dataToStore = {
+            messages,
+            senders: Array.from(senders.entries())
+        };
+        sessionStorage.setItem('chatAnalysisData', JSON.stringify(dataToStore));
+        router.push('/analysis');
+    } catch (error) {
+        console.error("Failed to store chat data for analysis:", error);
+        toast({
+            variant: "destructive",
+            title: "Could not navigate to analysis",
+            description: "There was an error preparing the chat data.",
+        });
+    }
+  };
+
   const filteredMessages = useMemo(() => {
     return messages
       .filter(msg => {
+        if (!msg || typeof msg.text !== 'string') return false;
         const sentimentMatch = sentimentFilter === 'all' || msg.sentiment === sentimentFilter;
         const searchMatch = !searchQuery || msg.text.toLowerCase().includes(searchQuery.toLowerCase());
         return sentimentMatch && searchMatch;
@@ -89,6 +110,7 @@ export default function Home() {
     setError(null);
     setSearchQuery('');
     setSentimentFilter('all');
+    sessionStorage.removeItem('chatAnalysisData');
   };
 
   const onFilterSelect = (filter: string) => {
@@ -127,6 +149,7 @@ export default function Home() {
                     onFilter={onFilterSelect}
                     activeFilter={sentimentFilter}
                     onReset={resetToUploader}
+                    onAnalyze={handleAnalyzeChat}
                     otherParticipantName={otherParticipant?.name}
                 />
               </div>
@@ -155,6 +178,7 @@ export default function Home() {
                   onFilter={onFilterSelect}
                   activeFilter={sentimentFilter}
                   onReset={resetToUploader}
+                  onAnalyze={handleAnalyzeChat}
                   otherParticipantName={otherParticipant?.name}
                   isSheet={true}
               />
