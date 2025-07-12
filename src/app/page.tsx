@@ -72,13 +72,9 @@ export default function Home() {
   const filteredMessages = useMemo(() => {
     return messages
       .filter(msg => {
-        if (sentimentFilter !== 'all' && msg.sentiment !== sentimentFilter) {
-          return false;
-        }
-        if (searchQuery && !msg.text.toLowerCase().includes(searchQuery.toLowerCase())) {
-          return false;
-        }
-        return true;
+        const sentimentMatch = sentimentFilter === 'all' || msg.sentiment === sentimentFilter;
+        const searchMatch = !searchQuery || msg.text.toLowerCase().includes(searchQuery.toLowerCase());
+        return sentimentMatch && searchMatch;
       });
   }, [messages, searchQuery, sentimentFilter]);
 
