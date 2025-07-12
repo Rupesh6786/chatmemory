@@ -1,7 +1,7 @@
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy } from "firebase/firestore";
+import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, Timestamp } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import type { Chat } from './types';
 
@@ -46,7 +46,7 @@ export const uploadChatFile = async (userId: string, file: File, title: string, 
 
     const docRef = await addDoc(chatsCollection, chatDoc);
 
-    return { id: docRef.id, ...chatDoc, createdAt: new Date() } as unknown as Chat;
+    return { id: docRef.id, ...chatDoc, createdAt: { seconds: Date.now() / 1000, nanoseconds: 0 } } as unknown as Chat;
 };
 
 
