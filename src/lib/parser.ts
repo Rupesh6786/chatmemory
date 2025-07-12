@@ -4,7 +4,8 @@ import type { Message, Sender } from './types';
 // [DD/MM/YYYY, HH:MM:SS] Sender: Message
 // DD/MM/YY, HH:MM - Sender: Message
 // DD/MM/YY, HH:MM pm - Sender: Message
-const MESSAGE_REGEX = /\[?(\d{1,2}[\/.]\d{1,2}[\/.]\d{2,4}), (\d{1,2}:\d{2}(?::\d{2})?(?:\s?[ap]m)?)\]? - ([^:]+): ([\s\S]+)/i;
+const MESSAGE_REGEX = /(\d{1,2}\/\d{1,2}\/\d{2,4}, \d{1,2}:\d{2}\s?(?:[ap]m)?)\s-\s([^:]+):\s([\s\S]+)/i;
+const MEDIA_OMITTED_MESSAGE = '<Media omitted>';
 
 export const parseWhatsAppChat = (fileContent: string): { messages: Message[], senders: Map<string, Sender> } => {
   const lines = fileContent.split('\n');
@@ -17,9 +18,16 @@ export const parseWhatsAppChat = (fileContent: string): { messages: Message[], s
     const match = line.match(MESSAGE_REGEX);
 
     if (match) {
-      // Groups: 1:date, 2:time, 3:sender, 4:text
-      const [_, date, time, senderName, text] = match;
-      const timestamp = `${date}, ${time}`;
+      // Groups: 1:datetime, 2:sender, 3:text
+      const [_, datetime, senderName, text] = match;
+      const messageText = text.trim();
+
+      if (messageText === MEDIA_OMITTED_MESSAGE) {
+        currentMessage = null; // Ignore this message
+        continue;
+      }
+      
+      const timestamp = datetime;
 
       // Normalize sender name
       const normalizedSender = senderName.trim();
@@ -34,7 +42,7 @@ export const parseWhatsAppChat = (fileContent: string): { messages: Message[], s
         id: messageId++,
         timestamp,
         sender: normalizedSender,
-        text: text.trim(),
+        text: messageText,
       };
       messages.push(currentMessage);
     } else if (currentMessage && line.trim()) {
