@@ -74,6 +74,10 @@ export default function Home() {
         return true;
       });
   }, [messages, searchQuery, sentimentFilter]);
+
+  const otherParticipant = useMemo(() => {
+    return Array.from(senders.values()).find(s => !s.isUser)
+  }, [senders]);
   
   const resetChat = () => {
     setMessages([]);
@@ -118,6 +122,7 @@ export default function Home() {
                 senders={senders}
                 isAnalyzing={isAnalyzing}
                 searchQuery={searchQuery}
+                otherParticipant={otherParticipant}
             />
         </div>
     </div>
