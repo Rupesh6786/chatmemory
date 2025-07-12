@@ -5,8 +5,31 @@ import type { Message, Sender } from './types';
 // DD/MM/YY, HH:MM - Sender: Message
 // DD/MM/YY, HH:MM pm - Sender: Message
 // M/D/YY, H:MM AM/PM - Sender: Message
-const MESSAGE_REGEX = /^(\d{1,2}\/\d{1,2}\/\d{2,4}, \d{1,2}:\d{2}\s?[ap]m)\s-\s([^:]+):\s([\s\S]+)/i;
+const MESSAGE_REGEX = /^(\d{1,2}\/\d{1,2}\/\d{2,4}, \d{1,2}:\d{2}(?::\d{2})?\s?[ap]?m?)\s-\s([^:]+):\s([\s\S]+)/i;
 const MEDIA_OMITTED_MESSAGE = '<Media omitted>';
+
+function parseDate(dateString: string): Date {
+  // Handles DD/MM/YY, HH:MM am/pm
+  const parts = dateString.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4}), (\d{1,2}):(\d{2})\s?([ap]m)/i);
+  if (!parts) return new Date();
+
+  const [_, day, month, year, hours, minutes, ampm] = parts;
+  let numericHours = parseInt(hours, 10);
+  
+  if (ampm.toLowerCase() === 'pm' && numericHours < 12) {
+    numericHours += 12;
+  }
+  if (ampm.toLowerCase() === 'am' && numericHours === 12) {
+    numericHours = 0;
+  }
+
+  // year can be 'YY' or 'YYYY', handle both
+  const fullYear = parseInt(year, 10) < 100 ? 2000 + parseInt(year, 10) : parseInt(year, 10);
+  
+  // new Date(year, monthIndex, day, hours, minutes)
+  return new Date(fullYear, parseInt(month, 10) - 1, parseInt(day, 10), numericHours, parseInt(minutes, 10));
+}
+
 
 export const parseWhatsAppChat = (fileContent: string): { messages: Message[], senders: Map<string, Sender> } => {
   const lines = fileContent.split('\n');
@@ -29,6 +52,7 @@ export const parseWhatsAppChat = (fileContent: string): { messages: Message[], s
       }
 
       const timestamp = datetime;
+      const date = parseDate(timestamp);
 
       // Normalize sender name
       const normalizedSender = senderName.trim();
@@ -42,6 +66,7 @@ export const parseWhatsAppChat = (fileContent: string): { messages: Message[], s
       currentMessage = {
         id: messageId++,
         timestamp,
+        date,
         sender: normalizedSender,
         text: messageText,
       };
