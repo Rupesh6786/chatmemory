@@ -2,17 +2,17 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Allow users to only read/write their own chat documents.
+    // They can list chats if they are querying by their own userId.
     match /chats/{chatId} {
-      // Allow user to read/write/delete their own chat document.
-      allow get, update, delete, write: if request.auth != null && request.auth.uid == resource.data.userId;
-
-      // Allow user to create a chat document for themselves.
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
     }
-    // Allow a user to query for the list of their own chats.
-    // This rule is needed for the getChatsForUser function.
+
+    // This rule allows a user to perform a query on the 'chats' collection
+    // as long as the query includes a 'where("userId", "==", request.auth.uid)' clause.
     match /chats/{document=**} {
-        allow list: if request.auth != null && request.query.resource.data.userId == request.auth.uid;
+      allow list: if request.auth != null && request.query.resource.data.userId == request.auth.uid;
     }
   }
 }
