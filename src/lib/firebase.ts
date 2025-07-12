@@ -46,7 +46,13 @@ export const uploadChatFile = async (userId: string, file: File, title: string, 
 
     const docRef = await addDoc(chatsCollection, chatDoc);
 
-    return { id: docRef.id, ...chatDoc, createdAt: { seconds: Date.now() / 1000, nanoseconds: 0 } } as unknown as Chat;
+    // Return a client-side representation of the chat object.
+    // The server timestamp will be replaced by the actual date on the client.
+    return {
+      id: docRef.id,
+      ...chatDoc,
+      createdAt: new Timestamp(Math.floor(Date.now() / 1000), 0)
+    } as unknown as Chat;
 };
 
 
