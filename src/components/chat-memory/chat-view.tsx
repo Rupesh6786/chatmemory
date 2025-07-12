@@ -75,7 +75,7 @@ export default function ChatView({ messages, senders, isAnalyzing, searchQuery, 
         </div>
       </header>
       <ScrollArea className="flex-1" ref={scrollAreaRef}>
-        <div className="p-4 md:p-8 space-y-2" ref={viewportRef}>
+        <div className="p-2 md:p-6 space-y-1" ref={viewportRef}>
           {chatItems.map((item, index) => {
             if ('type' in item && item.type === 'date_separator') {
               return <DateSeparator key={`sep_${index}`} date={item.date} />;

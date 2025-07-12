@@ -46,10 +46,10 @@ export default function MessageBubble({ message, sender, searchQuery }: MessageB
     <div className={cn('flex items-end gap-2 w-full', isUser ? 'justify-end' : 'justify-start')}>
       <div
         className={cn(
-          'max-w-[85%] sm:max-w-[80%] md:max-w-[70%] lg:max-w-[60%] rounded-xl px-3 py-2 flex flex-col shadow-md',
+          'max-w-[80%] sm:max-w-[75%] md:max-w-[65%] rounded-lg px-3 py-2 flex flex-col shadow',
           isUser
             ? 'bg-[#dcf8c6] dark:bg-[#005C4B] text-gray-800 dark:text-gray-100 rounded-br-sm'
-            : 'bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-100 rounded-bl-sm'
+            : 'bg-white dark:bg-[#202c33] text-gray-800 dark:text-gray-100 rounded-bl-sm'
         )}
       >
         {!isUser && (
