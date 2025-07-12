@@ -55,7 +55,7 @@ export default function MessageBubble({ message, sender, searchQuery }: MessageB
         {!isUser && (
           <p className="text-sm font-bold text-primary dark:text-green-400 mb-0.5">{message.sender}</p>
         )}
-        <p className="whitespace-pre-wrap break-words text-base">
+        <p className="whitespace-pre-wrap break-words text-base overflow-wrap-anywhere">
           <HighlightedText text={message.text} highlight={searchQuery} />
         </p>
         <div className="flex items-center gap-2 self-end mt-1 h-4">
