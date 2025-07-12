@@ -4,7 +4,8 @@ import type { Message, Sender } from './types';
 // [DD/MM/YYYY, HH:MM:SS] Sender: Message
 // DD/MM/YY, HH:MM - Sender: Message
 // DD/MM/YY, HH:MM pm - Sender: Message
-const MESSAGE_REGEX = /(\d{1,2}\/\d{1,2}\/\d{2,4}, \d{1,2}:\d{2}\s?(?:[ap]m)?)\s-\s([^:]+):\s([\s\S]+)/i;
+// M/D/YY, H:MM AM/PM - Sender: Message
+const MESSAGE_REGEX = /\[?(\d{1,2}\/\d{1,2}\/\d{2,4}, \d{1,2}:\d{2}(?::\d{2})?(?: [ap]m)?)]?\s-\s([^:]+):\s([\s\S]+)/i;
 const MEDIA_OMITTED_MESSAGE = '<Media omitted>';
 
 export const parseWhatsAppChat = (fileContent: string): { messages: Message[], senders: Map<string, Sender> } => {
@@ -21,12 +22,12 @@ export const parseWhatsAppChat = (fileContent: string): { messages: Message[], s
       // Groups: 1:datetime, 2:sender, 3:text
       const [_, datetime, senderName, text] = match;
       const messageText = text.trim();
-
+      
       if (messageText === MEDIA_OMITTED_MESSAGE) {
-        currentMessage = null; // Ignore this message
+        currentMessage = null; // Ignore this message and don't create a bubble for it
         continue;
       }
-      
+
       const timestamp = datetime;
 
       // Normalize sender name

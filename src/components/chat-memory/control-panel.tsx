@@ -68,7 +68,7 @@ export default function ControlPanel({ onSearch, onFilter, activeFilter, onReset
       <div className="mt-auto pt-4 border-t border-border/50">
         <Button variant="outline" className="w-full" onClick={onReset}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Chat List
+          Back to Upload
         </Button>
       </div>
     </aside>
