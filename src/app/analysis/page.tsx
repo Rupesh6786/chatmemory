@@ -81,9 +81,14 @@ export default function AnalysisPage() {
     const totalDelay = replyDelays.reduce((sum, item) => sum + item.delay, 0);
     const averageDelay = totalDelay / replyDelays.length;
 
-    // Scoring: faster replies get higher scores.
-    // A 1-minute (60s) average delay = 90. 5-minute (300s) = 50. 10-minute (600s) = 25.
-    const score = Math.max(0, 100 - (averageDelay / 600) * 75);
+    // Scoring: 
+    // < 1 min (60s) is ~100.
+    // 5 min (300s) is ~80.
+    // 15 min (900s) is ~50.
+    // 30 min (1800s) is ~25.
+    // 60 min (3600s) is ~10
+    const score = Math.max(0, 100 * (1 - Math.log(Math.max(1, averageDelay / 60) + 1) / Math.log(60)));
+
 
     return {
       replyDelays,
