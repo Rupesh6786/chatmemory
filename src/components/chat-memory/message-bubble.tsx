@@ -46,7 +46,7 @@ export default function MessageBubble({ message, sender, searchQuery }: MessageB
     <div className={cn('flex items-end gap-2 w-full', isUser ? 'justify-end' : 'justify-start')}>
       <div
         className={cn(
-          'max-w-md lg:max-w-2xl rounded-xl px-3 py-2 flex flex-col shadow-md',
+          'max-w-[80%] md:max-w-[70%] lg:max-w-[60%] rounded-xl px-3 py-2 flex flex-col shadow-md',
           isUser
             ? 'bg-[#dcf8c6] dark:bg-[#005C4B] text-gray-800 dark:text-gray-100 rounded-br-sm'
             : 'bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-100 rounded-bl-sm'
@@ -55,7 +55,7 @@ export default function MessageBubble({ message, sender, searchQuery }: MessageB
         {!isUser && (
           <p className="text-sm font-bold text-primary dark:text-green-400 mb-0.5">{message.sender}</p>
         )}
-        <p className="whitespace-pre-wrap text-base">
+        <p className="whitespace-pre-wrap break-words text-base">
           <HighlightedText text={message.text} highlight={searchQuery} />
         </p>
         <div className="flex items-center gap-2 self-end mt-1 h-4">
