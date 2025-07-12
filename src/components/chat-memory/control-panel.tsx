@@ -79,13 +79,15 @@ export default function ControlPanel({ onSearch, onFilter, activeFilter, onReset
               <span className="sr-only">Close</span>
             </SheetClose>
         </SheetHeader>
-        {content}
+        <div className="flex flex-col flex-1 h-full">
+            {content}
+        </div>
       </>
     );
   }
 
   return (
-    <aside className="w-full max-w-[280px] bg-card/60 dark:bg-zinc-900/60 backdrop-blur-sm border-r border-border/50 flex flex-col">
+    <aside className="w-full h-full bg-card/60 dark:bg-zinc-900/60 backdrop-blur-sm border-r border-border/50 flex flex-col">
       <div className="flex items-center gap-2 p-4 pb-4 border-b border-border/50">
         <MessageSquareText className="w-8 h-8 text-primary" />
         <div>

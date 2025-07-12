@@ -121,11 +121,11 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen w-screen bg-background text-foreground overflow-hidden">
+    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden">
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <div className="relative z-10 flex w-full h-full">
+          <div className="flex w-full h-full">
               {/* Desktop Control Panel */}
-              <div className="hidden md:flex">
+              <div className="hidden md:flex md:w-[280px] md:flex-shrink-0">
                 <ControlPanel
                     onSearch={setSearchQuery}
                     onFilter={onFilterSelect}
@@ -135,7 +135,7 @@ export default function Home() {
                 />
               </div>
 
-              {/* Mobile Control Panel Trigger (in ChatView header) */}
+              {/* Main Chat View */}
               <ChatView
                   messages={filteredMessages}
                   senders={senders}
@@ -143,6 +143,7 @@ export default function Home() {
                   searchQuery={searchQuery}
                   otherParticipant={otherParticipant}
               >
+                 {/* Mobile Control Panel Trigger (in ChatView header) */}
                  <SheetTrigger asChild>
                     <Button variant="ghost" size="icon" className="md:hidden">
                       <PanelLeft className="h-5 w-5" />
