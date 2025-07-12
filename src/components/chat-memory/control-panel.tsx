@@ -2,7 +2,7 @@
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Smile, Frown, Angry, RefreshCw, MessageSquareText } from 'lucide-react';
+import { Search, Smile, Frown, Angry, RefreshCw, MessageSquareText, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ControlPanelProps {
@@ -10,9 +10,10 @@ interface ControlPanelProps {
   onFilter: (sentiment: string) => void;
   activeFilter: string;
   onReset: () => void;
+  otherParticipantName?: string;
 }
 
-export default function ControlPanel({ onSearch, onFilter, activeFilter, onReset }: ControlPanelProps) {
+export default function ControlPanel({ onSearch, onFilter, activeFilter, onReset, otherParticipantName }: ControlPanelProps) {
   const sentimentFilters = [
     { name: 'Happy', sentiment: 'happy', icon: Smile, color: 'text-green-500' },
     { name: 'Sad', sentiment: 'sad', icon: Frown, color: 'text-blue-500' },
@@ -25,7 +26,7 @@ export default function ControlPanel({ onSearch, onFilter, activeFilter, onReset
         <MessageSquareText className="w-8 h-8 text-primary" />
         <div>
           <h2 className="text-xl font-bold font-headline">ChatMemory</h2>
-          <p className="text-xs text-muted-foreground">Your chat archive</p>
+          {otherParticipantName && <p className="text-xs text-muted-foreground">Chat with {otherParticipantName}</p>}
         </div>
       </div>
 
@@ -66,8 +67,8 @@ export default function ControlPanel({ onSearch, onFilter, activeFilter, onReset
 
       <div className="mt-auto pt-4 border-t border-border/50">
         <Button variant="outline" className="w-full" onClick={onReset}>
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Load Another Chat
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Chat List
         </Button>
       </div>
     </aside>
