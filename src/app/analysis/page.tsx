@@ -28,6 +28,7 @@ export default function AnalysisPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [senders, setSenders] = useState<Map<string, Sender>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
     try {
@@ -38,17 +39,23 @@ export default function AnalysisPage() {
         const parsedMessages = messages.map((m: any) => ({ ...m, date: new Date(m.date) }));
         setMessages(parsedMessages);
         setSenders(new Map(storedSenders));
-      } else {
-        // If no data, redirect back to home
-        router.push('/');
+        setDataLoaded(true);
       }
     } catch (error) {
       console.error("Failed to load chat data from session storage:", error);
-      router.push('/');
     } finally {
       setIsLoading(false);
     }
-  }, [router]);
+  }, []); // Empty dependency array ensures this runs only once on mount
+  
+  useEffect(() => {
+    // This effect runs after the first one finishes.
+    // If loading is complete and no data was loaded, then redirect.
+    if (!isLoading && !dataLoaded) {
+      router.push('/');
+    }
+  }, [isLoading, dataLoaded, router]);
+
 
   const analysisResults = useMemo(() => {
     if (messages.length < 2) return { replyDelays: [], averageDelay: 0, replyRateScore: 0, totalMessages: messages.length };
@@ -131,7 +138,7 @@ export default function AnalysisPage() {
     return `${minutes}m ${remainingSeconds}s`;
   };
 
-  if (isLoading) {
+  if (isLoading || !dataLoaded) {
     return <div className="flex items-center justify-center min-h-screen">Loading analysis...</div>;
   }
   
