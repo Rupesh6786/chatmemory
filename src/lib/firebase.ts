@@ -34,7 +34,7 @@ export const uploadChatFile = async (userId: string, file: File, title: string, 
     const fileUrl = await getDownloadURL(uploadResult.ref);
 
     // 2. Create a chat document in Firestore
-    const chatDoc = {
+    const chatDocData = {
         userId,
         title,
         fileUrl,
@@ -44,15 +44,20 @@ export const uploadChatFile = async (userId: string, file: File, title: string, 
         createdAt: serverTimestamp(),
     };
 
-    const docRef = await addDoc(chatsCollection, chatDoc);
+    const docRef = await addDoc(chatsCollection, chatDocData);
 
-    // Return a client-side representation of the chat object.
-    // The server timestamp will be replaced by the actual date on the client.
+    // 3. Return a client-side representation of the chat object.
+    // The server timestamp will be null on the client initially, so we create a client-side one.
     return {
       id: docRef.id,
-      ...chatDoc,
+      userId: chatDocData.userId,
+      title: chatDocData.title,
+      fileUrl: chatDocData.fileUrl,
+      fileName: chatDocData.fileName,
+      storagePath: chatDocData.storagePath,
+      messageCount: chatDocData.messageCount,
       createdAt: new Timestamp(Math.floor(Date.now() / 1000), 0)
-    } as unknown as Chat;
+    };
 };
 
 
