@@ -1,7 +1,10 @@
 import type { Message, Sender } from './types';
 
-const MESSAGE_REGEX = /\[?(\d{1,2}[\/.]\d{1,2}[\/.]\d{2,4}), (\d{1,2}:\d{2}(?::\d{2})?(?:\s?[AP]M)?)]? (?:- )?([^:]+): ([\s\S]+)/;
-const ANDROID_MESSAGE_REGEX = /(\d{1,2}[\/.]\d{1,2}[\/.]\d{2,4}), (\d{1,2}:\d{2}) - ([^:]+): ([\s\S]+)/;
+// Regex that handles formats like:
+// [DD/MM/YYYY, HH:MM:SS] Sender: Message
+// DD/MM/YY, HH:MM - Sender: Message
+// DD/MM/YY, HH:MM pm - Sender: Message
+const MESSAGE_REGEX = /\[?(\d{1,2}[\/.]\d{1,2}[\/.]\d{2,4}), (\d{1,2}:\d{2}(?::\d{2})?(?:\s?[ap]m)?)\]? - ([^:]+): ([\s\S]+)/i;
 
 export const parseWhatsAppChat = (fileContent: string): { messages: Message[], senders: Map<string, Sender> } => {
   const lines = fileContent.split('\n');
@@ -11,12 +14,10 @@ export const parseWhatsAppChat = (fileContent: string): { messages: Message[], s
   let currentMessage: Message | null = null;
 
   for (const line of lines) {
-    let match = line.match(MESSAGE_REGEX);
-    if (!match) {
-        match = line.match(ANDROID_MESSAGE_REGEX);
-    }
+    const match = line.match(MESSAGE_REGEX);
 
     if (match) {
+      // Groups: 1:date, 2:time, 3:sender, 4:text
       const [_, date, time, senderName, text] = match;
       const timestamp = `${date}, ${time}`;
 
@@ -37,6 +38,7 @@ export const parseWhatsAppChat = (fileContent: string): { messages: Message[], s
       };
       messages.push(currentMessage);
     } else if (currentMessage && line.trim()) {
+      // This is a continuation of the previous message (multiline)
       currentMessage.text += '\n' + line.trim();
     }
   }
